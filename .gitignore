@@ -1,0 +1,51 @@
+# Data and experiment outputs
+data/
+output/
+cdd_demo/
+teachers/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+debug.log
+run_output.log
+diagnose.py
+test_pqp_fix.py
+run_baseline.sh
+
+# Checkpoints and model artifacts
+*.pt
+*.bin
+*.ckpt
+
+# Paper / writing artifacts
+sample-sigconf.tex
+paper_*.md
+*.pdf
+*.docx
+
+# Local screenshots and temporary media
+微信图片_*.png
+微信图片_*.jpg
+截图/
+*.gif
+*.webp
+
+# Archives
+*.zip
+
+# Third-party SpeechCraft snapshot:
+# ignore everything by default, keep only the minimal reference files
+SpeechCraft-master/**
+!SpeechCraft-master/
+!SpeechCraft-master/README.md
+!SpeechCraft-master/AutomaticPipeline/
+!SpeechCraft-master/AutomaticPipeline/PitchEnergy.py
+
+# OS / editor files
+.DS_Store
+Thumbs.db

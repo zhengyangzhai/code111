@@ -1,0 +1,10 @@
+# Minimal dependencies for training, evaluation, and preprocessing
+# Note: install a CUDA-matching PyTorch build if you plan to reproduce GPU results.
+
+torch
+torchaudio
+numpy
+transformers
+tqdm
+matplotlib
+librosa
