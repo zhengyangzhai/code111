@@ -69,7 +69,7 @@ def make_figure2_tldl_case():
     cbar = fig.colorbar(im, ax=axes, shrink=0.9, pad=0.02)
     cbar.set_label("Token discrepancy score", fontsize=11)
     fig.suptitle(
-        "Figure 2. Illustrative TLDL case visualization",
+        "Figure 3. Illustrative TLDL case visualization",
         fontsize=15,
         fontweight="bold",
         y=1.02,
@@ -82,8 +82,8 @@ def make_figure2_tldl_case():
         color="#666666",
     )
 
-    png_path = FIG_DIR / "figure2_tldl_case_draft.png"
-    pdf_path = FIG_DIR / "figure2_tldl_case_draft.pdf"
+    png_path = FIG_DIR / "figure3_tldl_case_draft.png"
+    pdf_path = FIG_DIR / "figure3_tldl_case_draft.pdf"
     fig.savefig(png_path, dpi=220, bbox_inches="tight")
     fig.savefig(pdf_path, bbox_inches="tight")
     plt.close(fig)
