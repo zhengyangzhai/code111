@@ -43,7 +43,8 @@ def parse_args():
     parser.add_argument("--lambda_align", type=float, default=0.005, help="CDD alignment loss weight")
     parser.add_argument("--lambda_sep", type=float, default=0.001, help="CDD separation loss weight")
     parser.add_argument("--lambda_recon", type=float, default=0.01, help="CDR reconstruction loss weight; set 0 to disable CDR")
-    parser.add_argument("--no_dgcp", action="store_true", help="Disable DGCP: use standard supcon instead of discrepancy-guided contrastive pairs")
+    parser.add_argument("--use_dgcp", action="store_true", default=True, help="Enable DGCP (kept for backward-compatible command lines; DGCP is enabled by default)")
+    parser.add_argument("--no_dgcp", dest="use_dgcp", action="store_false", help="Disable DGCP: use standard supcon instead of discrepancy-guided contrastive pairs")
     parser.add_argument("--cdd_loss_warmup_epochs", type=int, default=5, help="Linearly warmup CDD auxiliary losses over this many epochs")
     parser.add_argument("--no_rfr", action="store_true", help="CDD-Net ablation: disable raw fusion residual and use CDD fused branch only")
     parser.add_argument("--rfr_gate_tau", type=float, default=1.0, help="RFR gate temperature; >1 softens gate, prevents early polarization")
@@ -116,7 +117,7 @@ def main():
         lambda_align=args.lambda_align,
         lambda_sep=args.lambda_sep,
         lambda_recon=args.lambda_recon,
-        use_dgcp=not args.no_dgcp,
+        use_dgcp=args.use_dgcp,
         cdd_loss_warmup_epochs=args.cdd_loss_warmup_epochs,
         use_rfr=not args.no_rfr,
         rfr_gate_tau=args.rfr_gate_tau,

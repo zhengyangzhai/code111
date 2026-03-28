@@ -146,7 +146,6 @@ Example calibrated SR configuration used in the paper:
 ```bash
 python run_sr.py \
   --modality cdd \
-  --use_dgcp \
   --swa_start_epoch 28 \
   --rfr_gate_tau 1.8 \
   --rfr_beta_init 1.0 \
@@ -160,7 +159,6 @@ Full reproducible command for the reported 75.18% SR result
 ```bash
 python run_sr.py \
   --modality cdd \
-  --use_dgcp \
   --rfr_gate_tau 1.8 \
   --rfr_beta_init 1.0 \
   --swa_start_epoch 28 \
@@ -186,7 +184,7 @@ python run_sr.py \
 One-line version:
 
 ```bash
-python run_sr.py --modality cdd --use_dgcp --rfr_gate_tau 1.8 --rfr_beta_init 1.0 --swa_start_epoch 28 --epochs 50 --batch_size 4 --gradient_accumulation_steps 8 --encoder_lr 1e-5 --classifier_lr 5e-4 --dropout 0.3 --lambda_con 0.01 --lambda_orth 0.001 --lambda_align 0.005 --lambda_sep 0.001 --lambda_recon 0.01 --mixup_alpha 0.3 --focal_gamma 2.0 --rdrop_alpha 1.0 --augment_train --exp_name sr_B_align_seed73 --seed 73
+python run_sr.py --modality cdd --rfr_gate_tau 1.8 --rfr_beta_init 1.0 --swa_start_epoch 28 --epochs 50 --batch_size 4 --gradient_accumulation_steps 8 --encoder_lr 1e-5 --classifier_lr 5e-4 --dropout 0.3 --lambda_con 0.01 --lambda_orth 0.001 --lambda_align 0.005 --lambda_sep 0.001 --lambda_recon 0.01 --mixup_alpha 0.3 --focal_gamma 2.0 --rdrop_alpha 1.0 --augment_train --exp_name sr_B_align_seed73 --seed 73
 ```
 
 Representative SR ablations and baselines:

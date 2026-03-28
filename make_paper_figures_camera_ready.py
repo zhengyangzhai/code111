@@ -273,24 +273,12 @@ def make_rfr_calibration_figure():
     ax.set_xticks(xpos)
     ax.set_xticklabels(names, fontsize=9.5)
     ax.set_ylim(69, 79.2)
-    ax.legend(frameon=False, fontsize=8.1, loc="upper left")
+    ax.legend(frameon=False, fontsize=8.1, loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.01))
 
     for bars in (bars1, bars2, bars3):
         for bar in bars:
             h = bar.get_height()
             ax.text(bar.get_x() + bar.get_width() / 2, h + 0.1, f"{h:.2f}", ha="center", va="bottom", fontsize=8.1)
-
-    best_gain = calibrated_ckpt_test - default_ckpt_test
-    swa_gain = calibrated_test_swa - default_test_swa
-    ax.text(
-        0.5,
-        69.24,
-        f"+{best_gain:.2f} ckpt acc, +{swa_gain:.2f} SWA acc",
-        ha="center",
-        fontsize=8.9,
-        color="#1b9e77",
-        fontweight="bold",
-    )
 
     png_path = FIG_DIR / "rfr_calibration.png"
     pdf_path = FIG_DIR / "rfr_calibration.pdf"
@@ -348,16 +336,12 @@ def make_rfr_calibration_figure_singlecol():
     ax.set_xticks(xpos)
     ax.set_xticklabels(names, fontsize=8.8)
     ax.set_ylim(69, 79.2)
-    ax.legend(frameon=False, fontsize=7.8, loc="upper left")
+    ax.legend(frameon=False, fontsize=7.8, loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.01))
 
     for bars in (bars1, bars2, bars3):
         for bar in bars:
             h = bar.get_height()
             ax.text(bar.get_x() + bar.get_width() / 2, h + 0.08, f"{h:.2f}", ha="center", va="bottom", fontsize=7.8)
-
-    best_gain = calibrated_ckpt_test - default_ckpt_test
-    swa_gain = calibrated_test_swa - default_test_swa
-    ax.text(0.5, 69.22, f"+{best_gain:.2f} ckpt, +{swa_gain:.2f} SWA", ha="center", fontsize=8.4, color="#1b9e77", fontweight="bold")
 
     png_path = FIG_DIR / "rfr_calibration_singlecol.png"
     pdf_path = FIG_DIR / "rfr_calibration_singlecol.pdf"
