@@ -135,13 +135,7 @@ python run.py --modality multimodal --no_frame_acoustic --exp_name pqp_multimoda
 
 ### 2. SR Training
 
-Minimal CDD entrypoint:
-
-```bash
-python run_sr.py --modality cdd --exp_name sr_cdd
-```
-
-Recommended default CDD setting for reproducing the paper's main SR result:
+Default CDD setting for reproducing the paper's main SR result:
 
 ```bash
 python run_sr.py \
