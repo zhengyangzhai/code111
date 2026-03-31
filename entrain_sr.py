@@ -136,6 +136,10 @@ class SRConfig:
     use_rfr: bool = True
     rfr_gate_tau: float = 1.0
     rfr_beta_init: float = 1.0
+    use_tone_aware_tldl: bool = False
+    tone_mask_gamma: float = 0.5
+    tone_mask_temp: float = 1.0
+    tone_var_dim: int = 1
     mixup_alpha: float = 0.3
     swa_start_epoch: int = 35
     use_weighted_sampler: bool = False  # FocalLoss已处理类不平衡,不再需要采样器
@@ -342,6 +346,10 @@ class SRTrainer:
                 use_rfr=cfg.use_rfr,
                 rfr_gate_tau=cfg.rfr_gate_tau,
                 rfr_beta_init=cfg.rfr_beta_init,
+                use_tone_aware_tldl=cfg.use_tone_aware_tldl,
+                tone_mask_gamma=cfg.tone_mask_gamma,
+                tone_mask_temp=cfg.tone_mask_temp,
+                tone_var_dim=cfg.tone_var_dim,
             ).to(self.device)
         elif cfg.modality == "drbf":
             self.logger.info("Using DRBFSRMoEModel (modality=drbf, hierarchical=%s)" % cfg.use_hierarchical)

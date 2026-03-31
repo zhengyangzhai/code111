@@ -1371,13 +1371,26 @@ class CrossModalBridgeV2(nn.Module):
     directly from weighted pooling over token-level discrepancy scores.
     """
 
-    def __init__(self, proj_dim: int, num_heads: int = 4, dropout: float = 0.1):
+    def __init__(
+        self,
+        proj_dim: int,
+        num_heads: int = 4,
+        dropout: float = 0.1,
+        use_tone_aware_mask: bool = False,
+        tone_mask_gamma: float = 0.5,
+        tone_mask_temp: float = 1.0,
+        tone_var_dim: int = 1,
+    ):
         super().__init__()
         self.proj_dim = proj_dim
         self.text2audio = nn.MultiheadAttention(proj_dim, num_heads, dropout=dropout, batch_first=True)
         self.audio2text = nn.MultiheadAttention(proj_dim, num_heads, dropout=dropout, batch_first=True)
         self.norm_t2a = nn.LayerNorm(proj_dim)
         self.norm_a2t = nn.LayerNorm(proj_dim)
+        self.use_tone_aware_mask = use_tone_aware_mask
+        self.tone_mask_gamma = tone_mask_gamma
+        self.tone_mask_temp = tone_mask_temp
+        self.tone_var_dim = tone_var_dim
 
         self.text_disc_scorer = nn.Sequential(
             nn.Linear(proj_dim, proj_dim // 2),
@@ -1425,6 +1438,7 @@ class CrossModalBridgeV2(nn.Module):
         audio_emb: torch.Tensor,
         text_mask: Optional[torch.Tensor] = None,
         audio_mask: Optional[torch.Tensor] = None,
+        tone_var: Optional[torch.Tensor] = None,
     ) -> Dict[str, torch.Tensor]:
         text_key_pad = (~text_mask.bool()) if text_mask is not None else None
         audio_key_pad = (~audio_mask.bool()) if audio_mask is not None else None
@@ -1444,6 +1458,14 @@ class CrossModalBridgeV2(nn.Module):
         tau = self.disc_temperature.clamp(min=0.01)
         text_disc_scores = torch.sigmoid(self.text_disc_scorer(text_diff) / tau)
         audio_disc_scores = torch.sigmoid(self.audio_disc_scorer(audio_diff) / tau)
+        if self.use_tone_aware_mask and tone_var is not None:
+            tone_var = tone_var.to(text_disc_scores.dtype)
+            tone_mask = torch.sigmoid(
+                tone_var.view(-1, 1, 1) / max(float(self.tone_mask_temp), 1e-6)
+            )
+            scale = 1.0 + float(self.tone_mask_gamma) * tone_mask
+            text_disc_scores = torch.clamp(text_disc_scores * scale, 0.0, 1.0)
+            audio_disc_scores = torch.clamp(audio_disc_scores * scale, 0.0, 1.0)
 
         text_cons_emb = self._weighted_masked_pool(text_seq, 1.0 - text_disc_scores, text_mask)
         text_disc_emb = self._weighted_masked_pool(text_seq, text_disc_scores, text_mask)
@@ -3011,6 +3033,10 @@ class CDDSRMoEModel(nn.Module):
         use_rfr: bool = True,
         rfr_gate_tau: float = 1.0,
         rfr_beta_init: float = 1.0,
+        use_tone_aware_tldl: bool = False,
+        tone_mask_gamma: float = 0.5,
+        tone_mask_temp: float = 1.0,
+        tone_var_dim: int = 1,
     ):
         super().__init__()
         self.proj_dim = proj_dim
@@ -3026,6 +3052,10 @@ class CDDSRMoEModel(nn.Module):
         self.use_dgcp = use_dgcp
         self.use_rfr = use_rfr
         self.rfr_gate_tau = rfr_gate_tau
+        self.use_tone_aware_tldl = use_tone_aware_tldl
+        self.tone_mask_gamma = tone_mask_gamma
+        self.tone_mask_temp = tone_mask_temp
+        self.tone_var_dim = tone_var_dim
 
         self.text_encoder = AutoModel.from_pretrained(text_model_name)
         self.audio_encoder = Wav2Vec2Model.from_pretrained(audio_model_name)
@@ -3077,7 +3107,15 @@ class CDDSRMoEModel(nn.Module):
         self.pqp_audio_attn_pool = AttentionPooling(proj_dim)
 
         if use_token_disc:
-            self.bridge_v2 = CrossModalBridgeV2(proj_dim, num_heads, dropout)
+            self.bridge_v2 = CrossModalBridgeV2(
+                proj_dim,
+                num_heads,
+                dropout,
+                use_tone_aware_mask=use_tone_aware_tldl,
+                tone_mask_gamma=tone_mask_gamma,
+                tone_mask_temp=tone_mask_temp,
+                tone_var_dim=tone_var_dim,
+            )
             self.bridge = None
             self.text_disent = None
             self.audio_disent = None
@@ -3217,10 +3255,15 @@ class CDDSRMoEModel(nn.Module):
             reduced_mask = self._compute_reduced_audio_mask(audio_attention_mask, audio_hidden.shape[1])
         audio_emb = self.audio_attn_pool(audio_seq, reduced_mask)
 
+        tone_var = None
+        if self.use_tone_aware_tldl and prosody_features is not None and prosody_features.dim() == 2:
+            tone_var = prosody_features[:, self.tone_var_dim]
+
         if self.use_token_disc:
             bridge_out = self.bridge_v2(
                 text_seq, audio_seq, text_emb, audio_emb,
                 text_mask=text_attention_mask, audio_mask=reduced_mask,
+                tone_var=tone_var,
             )
             text_cons = bridge_out["text_cons"]
             text_disc = bridge_out["text_disc"]

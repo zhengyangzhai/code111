@@ -49,6 +49,11 @@ def parse_args():
     parser.add_argument("--no_rfr", action="store_true", help="CDD-Net ablation: disable raw fusion residual and use CDD fused branch only")
     parser.add_argument("--rfr_gate_tau", type=float, default=1.0, help="RFR gate temperature; >1 softens gate, prevents early polarization")
     parser.add_argument("--rfr_beta_init", type=float, default=1.0, help="RFR branch initial scaling factor (learnable); <1 suppresses raw path early on")
+    parser.add_argument("--use_tone_aware_tldl", action="store_true", default=False,
+                        help="Enable tone/prosody variation aware reweighting for TLDL discrepancy scores (default: off)")
+    parser.add_argument("--tone_mask_gamma", type=float, default=0.5, help="Strength of tone-aware discrepancy reweighting")
+    parser.add_argument("--tone_mask_temp", type=float, default=1.0, help="Temperature for tone-aware mask (sigmoid scaling)")
+    parser.add_argument("--tone_var_dim", type=int, default=1, help="PROSODY_FEAT_DIM index used as F0 variation proxy (default: std)")
 
     parser.add_argument("--freeze_text_encoder", action="store_true", default=True)
     parser.add_argument("--no_freeze_text_encoder", dest="freeze_text_encoder", action="store_false")
@@ -122,6 +127,10 @@ def main():
         use_rfr=not args.no_rfr,
         rfr_gate_tau=args.rfr_gate_tau,
         rfr_beta_init=args.rfr_beta_init,
+        use_tone_aware_tldl=args.use_tone_aware_tldl,
+        tone_mask_gamma=args.tone_mask_gamma,
+        tone_mask_temp=args.tone_mask_temp,
+        tone_var_dim=args.tone_var_dim,
         freeze_text_encoder=args.freeze_text_encoder,
         freeze_audio_encoder=args.freeze_audio_encoder,
         freeze_epochs=args.freeze_epochs,

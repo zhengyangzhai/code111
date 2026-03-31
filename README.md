@@ -135,7 +135,13 @@ python run.py --modality multimodal --no_frame_acoustic --exp_name pqp_multimoda
 
 ### 2. SR Training
 
-Default CDD setting for reproducing the paper's main SR result:
+Default entrypoint:
+
+```bash
+python run_sr.py --modality cdd --exp_name sr_cdd
+```
+
+Example calibrated SR configuration used in the paper:
 
 ```bash
 python run_sr.py \
@@ -145,6 +151,12 @@ python run_sr.py \
   --rfr_beta_init 1.0 \
   --exp_name sr_B_align_seed73 \
   --seed 73
+```
+
+Tone-aware TLDL variant:
+
+```bash
+python run_sr.py --modality cdd --use_tone_aware_tldl --seed 73 --exp_name sr_B_align_seed73_on --rfr_gate_tau 1.8 --swa_start_epoch 28
 ```
 
 Full reproducible command for the reported 75.18% SR result
